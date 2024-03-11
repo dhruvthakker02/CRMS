@@ -1,0 +1,21 @@
+{% comment %} <form method='POST'>
+    {% csrf_token %}
+    <p>Are you sure  you want to delete it?</p>
+    <input type="submit" value="Delete">
+</form> {% endcomment %}
+
+
+<form method='POST'>
+    {% csrf_token %}
+    <p>Are you sure you want to delete it?</p>
+
+    <input type="submit" value="Delete">
+
+    <button type="button" onclick="cancelDelete()">Cancel</button>
+</form>
+
+<script>
+    function cancelDelete() {
+        window.location.href = "{% url 'car_list' %}";
+    }
+</script>
