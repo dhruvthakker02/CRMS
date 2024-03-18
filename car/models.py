@@ -48,8 +48,6 @@ class BookCar(models.Model):
     from_location = models.CharField(max_length=100)
     to_location = models.CharField(max_length=100)
     is_outercity = models.BooleanField()
-    pickup_location = models.CharField(max_length=100)
-    drop_location = models.CharField(max_length=100)
     total_price = models.IntegerField()
     status = models.CharField(max_length=100, choices=BookStatus)
 
@@ -57,7 +55,7 @@ class BookCar(models.Model):
         db_table='booking'
 
     def __str__(self):
-        return self.car    
+        return self.car.model   
 
 
 

@@ -1,0 +1,108 @@
+{% extends "base.html" %}
+{% block content %}
+{% block navbar %}{% endblock navbar %}
+<div class="container-fluid py-4">
+    <div class="row">
+      <div class="col-12">
+        <div class="card mb-4">
+          <div class="card-header pb-0">
+            <h6>Bookings</h6>
+          </div>
+          <div class="card-body px-0 pt-0 pb-2">
+            <div class="table-responsive p-0">
+              <table class="table align-items-center mb-0">
+                <thead>
+                  <tr>
+                    <th class="text-center text-uppercase text-secondary text-xxs font-weight-bolder opacity-7">Tenant</th>
+                    <th class="text-center text-uppercase text-secondary text-xxs font-weight-bolder opacity-7 ps-2">Car</th>
+                    <th class="text-center text-uppercase text-secondary text-xxs font-weight-bolder opacity-7">Start Hour</th>
+                    <th class="text-center text-uppercase text-secondary text-xxs font-weight-bolder opacity-7">End Hour</th>
+                    <th class="text-center text-uppercase text-secondary text-xxs font-weight-bolder opacity-7">From</th>
+                    <th class="text-center text-uppercase text-secondary text-xxs font-weight-bolder opacity-7">To</th>
+                    <th class="text-center text-uppercase text-secondary text-xxs font-weight-bolder opacity-7">Is Outercity</th>
+                    <th class="text-center text-uppercase text-secondary text-xxs font-weight-bolder opacity-7">Total Price</th>
+                    <th class="text-center text-uppercase text-secondary text-xxs font-weight-bolder opacity-7">Booking Status</th>
+                    <th class="text-center text-uppercase text-secondary text-xxs font-weight-bolder opacity-7">Actions</th>
+                  </tr>
+                </thead>
+                <tbody>
+                    {% for booking in bookings %}
+
+                    <tr>
+                      <td class="align-middle text-center">
+                        <p class="text-xs font-weight-bold mb-0">
+                          {{booking.tenant}}
+                        </p>
+                      </td>
+                      <td class="align-middle text-center text-sm">
+                        <span class="badge badge-sm bg-gradient-success"
+                          >{{booking.car}}</span
+                        >
+                      </td>
+                      <td class="align-middle text-center">
+                        <span class="text-secondary text-xs font-weight-bold"
+                          >{{booking.start_hour}}</span
+                        >
+                      </td>
+                      <td class="align-middle text-center">
+                        <span class="text-secondary text-xs font-weight-bold"
+                          >{{booking.end_hour}}</span
+                        >
+                      </td>
+                      
+                      <td class="align-middle text-center">
+                        <span class="text-secondary text-xs font-weight-bold"
+                          >{{booking.from_location}}</span
+                        >
+                      </td>
+                      
+                      <td class="align-middle text-center">
+                        <span class="text-secondary text-xs font-weight-bold"
+                          >{{booking.to_location}}</span
+                        >
+                      </td>
+                      <td class="align-middle text-center">
+                        <span class="text-secondary text-xs font-weight-bold"
+                          >{{booking.is_outercity}}</span
+                        >
+                      </td>
+                      
+                      <td class="align-middle text-center">
+                        <span class="text-secondary text-xs font-weight-bold"
+                          >{{booking.total_price}}</span
+                        >
+                      </td>
+                      <td class="align-middle text-center">
+                        <span class="text-secondary text-xs font-weight-bold"
+                          >{{booking.status}}</span
+                        >
+                      </td>
+                      <td>
+                        {% comment %} <a href="" class="btn btn-success">Approve</a>
+                        <a href="" class="btn btn-danger">Reject</a> {% endcomment %}
+                        <form action="{% url 'update_status' booking.id %}" method="POST">
+                          {% csrf_token %}
+                          <input type="hidden" name="action" value="approve">
+                          <input type="submit" value="Approve" class="btn btn-success">
+                      </form>
+                      <form action="{% url 'update_status' booking.id %}" method="POST">
+                          {% csrf_token %}
+                          <input type="hidden" name="action" value="reject">
+                          <input type="submit" value="Reject" class="btn btn-danger">
+                      </form>
+                      
+                      </td>
+                      
+                    </tr>
+                    {% endfor %}
+                </tbody>
+              </table>
+            </div>
+          </div>
+        </div>
+      </div>
+    </div>
+    
+    
+{% endblock content %}
+

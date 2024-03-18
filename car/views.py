@@ -13,6 +13,11 @@ from django.utils.decorators import method_decorator
 from django.contrib.auth.decorators import login_required
 from django.shortcuts import get_object_or_404
 from django.contrib.auth.mixins import LoginRequiredMixin
+from django.views import View
+from django.shortcuts import redirect
+from django.urls import reverse
+from datetime import timedelta
+
 
 # Create your views here.
 
@@ -77,7 +82,8 @@ class CarDetailView(DetailView):
 
 
 
-class BookingCreateView(CreateView):
+
+class BookingCreateView(LoginRequiredMixin, CreateView):
     model = BookCar
     template_name = 'car/booking.html'
     form_class = BookingCreationForm
@@ -88,15 +94,86 @@ class BookingCreateView(CreateView):
 
         # Get the car object from the CarDetailView
         car = get_object_or_404(Car, pk=self.kwargs['pk'])
+        print("car....",car)
+        renter = car.user
+        print("renter,,,,,",renter)
 
-        # Add the car object to the context
+        # Get the logged-in user
+        logged_in_user = self.request.user
+        print("loggedin user",logged_in_user)
+        # Add the car and logged-in user objects to the context
         context['car'] = car
+        #context['logged_in_user'] = logged_in_user
+        context['renter'] = renter
         return context
 
     def form_valid(self, form):
         # You can access the car object from the context
         car = self.get_context_data().get('car')
+        print("car1",car)
 
-        # Do something with the car object, for example, save it to the Booking object
+        print("Car:", car)
+        #print("Logged-in user:", logged_in_user)
+        print("Renter associated with the car:", car.user)
+        # Get the logged-in user
+        #logged_in_user = self.request.user
+        start_hour = form.cleaned_data.get('start_hour')
+        print("start hour",start_hour)
+
+        end_hour = form.cleaned_data.get('end_hour')
+        car_base_price = car.cost_per_hour
+
+        duration_hours = (end_hour - start_hour).total_seconds() / 3600  # Convert timedelta to hours
+
+
+        total_price = duration_hours * car_base_price
+        print("total price",total_price)
+        # Set the calculated total price in the form before saving
+        form.instance.total_price = total_price
+        # Assign the car and renter (logged-in user) to the booking
         form.instance.car = car
+        form.instance.renter =car.user
+        form.instance.tenant = self.request.user
+        form.instance.status = "Pending"
+
         return super().form_valid(form)
+
+
+
+class BookCarListView(ListView):
+    model = BookCar
+    template_name = 'car/booking_list.html'  # Provide the template name where you want to display the list
+    context_object_name = 'bookings'
+
+    def get_queryset(self):
+        # Get the logged-in user (assuming you are using Django's built-in authentication)
+        user = self.request.user
+
+        # Filter bookings where the renter is the logged-in user
+        queryset = BookCar.objects.filter(renter=user)
+
+        return queryset
+
+class UpdateStatusView(View):
+    
+    def post(self, request, pk):
+        booking = BookCar.objects.get(id=pk)
+        
+        # Retrieve the hidden action value from the form
+        action = request.POST.get('action')
+
+        # Perform different actions based on the hidden value
+        if action == 'approve':
+            booking.status = "Booked"
+        elif action == 'reject':
+            booking.status = "Rejected"
+
+        # Save the changes and redirect
+        booking.save()
+        return redirect(reverse('booking_list'))
+    
+def Payment(request):
+    return render(request,"car/payment.html")    
+
+        
+

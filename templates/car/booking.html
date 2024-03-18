@@ -148,7 +148,7 @@
         {% csrf_token %}
         <label for="" class="label">{{request.user}}</label>
         <h2>Make your trip</h2>
-        <div class="d-flex">
+        {% comment %} <div class="d-flex">
           <div class="form-group mr-2">
             <label for="" class="label">Renter</label>
             <div class="form-control">
@@ -169,23 +169,22 @@
           <div class="form-control">
             {{form.car}}
           </div>
-        
-          <div class="d-flex">
-            <div class="form-group mr-2">
-              <label for="" class="label">Pick-up Location</label>
-              <div class="form-control">
-                {{form.pickup_location}}
-              </div>
-            </div>
-            <div class="form-group ml-2">
-              <label for="" class="label">Drop-off Location</label>
-              <div class="form-control">
-                {{form.drop_location}}
-              </div>
-              
+         {% endcomment %}
+         <div class="d-flex">
+          <div class="form-group mr-2">
+            <label for="" class="label">From</label>
+            <div class="form-control">
+              {{form.from_location}}
             </div>
           </div>
-         
+          <div class="form-group ml-2">
+            <label for="" class="label">To</label>
+            <div class="form-control">
+              {{form.to_location}}
+            </div>
+            
+          </div>
+        </div>
           <div class="d-flex">
             <div class="form-group mr-2">
               <label for="" class="label">Start Hour</label>
@@ -209,34 +208,22 @@
             </div>  
           </div>
 
-          <div class="d-flex">
-            <div class="form-group mr-2">
-              <label for="" class="label">From</label>
-              <div class="form-control">
-                {{form.from_location}}
-              </div>
-            </div>
-            <div class="form-group ml-2">
-              <label for="" class="label">To</label>
-              <div class="form-control">
-                {{form.to_location}}
-              </div>
-              
-            </div>
-          </div>
-          <div class="form-group">
+          <input type="hidden" name="total_price" value="0">
+
+          
+          {% comment %} <div class="form-group">
             <label for="" class="label">Total Price</label>
             <div class="form-control">
               {{form.total_price}}
             </div>  
-          </div>
+          </div> {% endcomment %}
 
-          <div class="form-group">
+          {% comment %} <div class="form-group">
             <label for="" class="label">Booking Status</label>
             <div class="form-control">
               {{form.status}}
             </div>  
-          </div>
+          </div> {% endcomment %}
 
 
          

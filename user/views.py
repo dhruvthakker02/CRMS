@@ -8,7 +8,7 @@ from django.contrib.auth.views import LoginView
 from django.conf import settings
 from django.core.mail import send_mail
 from django.views.generic import ListView
-from car.models import Car
+from car.models import Car,BookCar
 from django.utils.decorators import method_decorator
 from django.contrib.auth.decorators import login_required
 from django.contrib.auth.mixins import LoginRequiredMixin
@@ -69,15 +69,34 @@ class UserLoginView(LoginView):
                 return '/user/tenant_dashboard'
 
 # @method_decorator(login_required,name="dispatch")
-class RenterDashboardView(ListView):
-    def get(self, request, *args, **kwargs):
-        print("RenterDashboardView")
-        cars= Car.objects.filter(user=request.user)
-        print("....................",cars)
+# class RenterDashboardView(ListView):
+#     def get(self, request, *args, **kwargs):
+#         print("RenterDashboardView")
+#         cars= Car.objects.filter(user=request.user)
+#         print("....................",cars)
 
-        return render(request,'user/renter_dashboard.html',{"cars":cars})
+#         return render(request,'user/renter_dashboard.html',{"cars":cars})
     
-    template_name= 'user/renter_dashboard.html'
+#     template_name= 'user/renter_dashboard.html'
+            
+class RenterDashboardView(ListView):
+    template_name = 'user/renter_dashboard.html'
+    context_object_name = 'bookings'
+
+    def get_queryset(self):
+        # Get cars owned by the current user
+        cars = Car.objects.filter(user=self.request.user)
+
+        # Get bookings associated with those cars
+        bookings = BookCar.objects.filter(car__in=cars)
+
+        return bookings
+
+    def get_context_data(self, **kwargs):
+        context = super().get_context_data(**kwargs)
+        # Add cars of the renter to the context
+        context['cars'] = Car.objects.filter(user=self.request.user)
+        return context            
 
 class TenantDashboardView(ListView):
     template_name = "user/tenant_dashboard.html"
