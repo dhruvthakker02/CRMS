@@ -17,6 +17,12 @@ from django.views import View
 from django.shortcuts import redirect
 from django.urls import reverse
 from datetime import timedelta
+from django.core.mail import send_mail
+from django.conf import settings
+from django.contrib import messages
+from django.template.loader import render_to_string
+
+
 
 
 # Create your views here.
@@ -154,8 +160,38 @@ class BookCarListView(ListView):
 
         return queryset
 
-class UpdateStatusView(View):
+
+
+# class UpdateStatusView(View):
     
+#     def post(self, request, pk):
+#         booking = BookCar.objects.get(id=pk)
+        
+#         # Retrieve the hidden action value from the form
+#         action = request.POST.get('action')
+
+#         # Perform different actions based on the hidden value
+#         if action == 'approve':
+#             booking.status = "Booked"
+#             subject = 'Booking Approved'
+#             message = 'Your car booking has been approved and is now confirmed.'
+#         elif action == 'reject':
+#             booking.status = "Rejected"
+#             subject = 'Booking Rejected'
+#             message = 'Sorry, we couldn\'t book your car as it is not available for the desired timings.'
+
+#         # Save the changes and redirect
+#         booking.save()
+
+#         EMAIL_FROM = settings.EMAIL_HOST_USER
+#         # Send email to the tenant
+#         send_mail(subject, message,EMAIL_FROM, [booking.tenant_email])
+
+#         return redirect(reverse('booking_list'))
+
+
+class UpdateStatusView(View):
+   
     def post(self, request, pk):
         booking = BookCar.objects.get(id=pk)
         
@@ -165,13 +201,35 @@ class UpdateStatusView(View):
         # Perform different actions based on the hidden value
         if action == 'approve':
             booking.status = "Booked"
+            # Send email to tenant
+            self.send_approval_email(booking)
         elif action == 'reject':
             booking.status = "Rejected"
+            # Send email to tenant
+            self.send_rejection_email(booking)
 
         # Save the changes and redirect
         booking.save()
+        messages.success(request, "Booking status updated successfully.")
         return redirect(reverse('booking_list'))
-    
+
+    def send_approval_email(self, booking):
+        
+        subject = 'Car Booking Approval'
+        context = {'booking': booking}
+        context['car'] = booking.car  # Add the car object to the context
+        message = render_to_string('car/booking_approval_email.html', context)
+        from_email = settings.EMAIL_HOST_USER
+        to_email = booking.tenant.email
+        send_mail(subject, message, from_email, [to_email], html_message=message)
+
+    def send_rejection_email(self, booking):
+        subject = 'Car Booking Rejection'
+        message = render_to_string('car/booking_rejection_email.html', {'booking': booking})
+        from_email = settings.EMAIL_HOST_USER
+        to_email = booking.tenant.email
+        send_mail(subject, message, from_email, [to_email], html_message=message)
+
 def Payment(request):
     return render(request,"car/payment.html")    
 
